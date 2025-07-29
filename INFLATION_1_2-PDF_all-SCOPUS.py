@@ -39,14 +39,23 @@ logging.getLogger('anthropic').setLevel(logging.WARNING)
 logging.getLogger('httpx').setLevel(logging.WARNING)
 logging.getLogger('urllib3').setLevel(logging.WARNING)
 
+# Načtení API klíčů z konfiguračního souboru
+try:
+    from config import CLAUDE_API_KEY, SCOPUS_API_KEY, CLAUDE_MODEL
+except ImportError:
+    print("❌ Chyba: Soubor config.py nebyl nalezen!")
+    print("📝 Vytvořte soubor config.py s následujícím obsahem:")
+    print("""
 # Claude API klíč
-CLAUDE_API_KEY = ""
+CLAUDE_API_KEY = "váš_claude_api_klíč"
 
-# Scopus API klíč
-SCOPUS_API_KEY = ""
+# Scopus API klíč  
+SCOPUS_API_KEY = "váš_scopus_api_klíč"
 
 # Model
 CLAUDE_MODEL = "claude-opus-4-20250514"
+""")
+    sys.exit(1)
 
 # Výstupní složka - bude nastavena v main() funkci
 EXPORT_FOLDER = None
