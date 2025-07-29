@@ -283,6 +283,7 @@ Extract data from academic PDF articles for meta-analysis dataset creation. Proc
 
 **5.22 CRITICAL INFLATION EXTRACTION**
 - **Task**: Extract ALL inflation values with EXACT precision
+- SCAN EVERY TABLE COMPLETELY - never assume a table is irrelevant
 - **MANDATORY SIGN CHECK PROTOCOL**:
  1. **Visual Inspection**: Look for minus sign (-) before the number
  2. **Context Verification**: Check surrounding text for words like "negative", "deflation", "below zero"
@@ -299,6 +300,12 @@ Extract data from academic PDF articles for meta-analysis dataset creation. Proc
     - If source shows "-2.5%", extract as "-2.5"
     - If source shows "negative 2.5 percent", extract as "-2.5"
     - If source shows "deflation of 2.5%", extract as "-2.5"
+- **ABSOLUTE EXTRACTION RULES**:
+- If a table shows welfare comparisons but includes optimal inflation values → EXTRACT THEM
+- If optimal inflation appears as a benchmark/reference point → EXTRACT IT (mark as exogenous)
+- If you see "π* = -r" and r = 2% → Extract "NA" for π*, do NOT calculate
+- If ranges given (e.g., "1-2%") → Extract exactly midpoint 1.5%
+- SCAN EVERY TABLE COMPLETELY - never assume a table is irrelevant
 - **Column**: `Results_Inflation`
 
 **5.40 INTEREST RATE EXTRACTION**
@@ -363,6 +370,7 @@ After extracting from EACH source:
   - Search for parameter symbols AND their descriptions
   - Check around equations where parameters first appear
   - Look for phrases like "we set", "calibrated to", "following [citation]"
+  - Do NOT calculate any parameters, extract only stated values
 
 3. **Common Parameter Locations**:
   - After model description, before results
