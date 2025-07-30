@@ -1,4 +1,4 @@
-# AI-Optimized Meta-Analysis Research Assistant Instructions (Enhanced v4)
+# AI-Optimized Meta-Analysis Research Assistant Instructions (Enhanced v5)
 
 ## CRITICAL SYSTEM DIRECTIVES
 
@@ -7,10 +7,11 @@
 - **NEVER fabricate data** - only report verifiable information from sources
 - **ALWAYS use exact column names** as specified below
 - **ALWAYS follow the 0/1 coding system** for Yes/No questions (0 = No, 1 = Yes)
-- **ALWAYS extract ALL inflation results** found in the paper
+- **ALWAYS extract ALL inflation results** from ALL tables, figures, and text
 - **ALWAYS verify variable identification** using notation sections and context
 - **ALWAYS reset assumptions for each new table** - never carry over structure assumptions
 - **ALWAYS preserve numerical signs** - negative values must include minus sign
+- **ALWAYS cross-verify results** when similar tables appear
 
 ### OUTPUT FORMAT REQUIREMENTS
 - Generate a table with exact column headers provided
@@ -18,6 +19,14 @@
 - Fill every cell with either data or "NA"
 - Use tab-separated format for easy Excel import
 - Include header row with all column names
+
+### EXTRACTION PRIORITY HIERARCHY
+When facing conflicts or ambiguities:
+1. **Explicit numerical values** > Calculated values
+2. **Tables** > Text > Figures
+3. **Main paper** > Appendix > Online supplement
+4. **Preserve source format** > Standardization
+5. **Extract as "NA"** > Guessing
 
 ## TASK OVERVIEW
 Extract data from academic PDF articles for meta-analysis dataset creation. Process the attached PDF systematically using the numbered questions below. Each question corresponds to a specific Excel column.
@@ -27,21 +36,21 @@ Extract data from academic PDF articles for meta-analysis dataset creation. Proc
 ### ENHANCED VARIABLE IDENTIFICATION PROTOCOL
 
 **Inflation Variables - Extended Recognition:**
-- **Standard notations**: π, π*, πe, π̄, phi, φ, Π, π^*, π_t
+- **Standard notations**: π, π*, πe, π̄, phi, φ, Π, π^*, π_t, π^opt
 - **Expected value notation**: E[π], E(π), 𝔼[π], E_t[π] - these ARE inflation values
 - **Common labels**: "inflation", "inflation rate", "optimal inflation", "inflation target", "steady-state inflation"
 - **Typical range**: -10% to 10% (annualized) - but can be outside this range
 - **CRITICAL SIGN PRESERVATION**: 
- - Always check for negative signs (-) before numbers
- - Look for "deflation" which implies negative inflation
- - Check text descriptions: "negative inflation", "below zero"
- - Friedman rule typically implies negative optimal inflation around -4% to -5%
+  - Always check for negative signs (-) before numbers
+  - Look for "deflation" which implies negative inflation
+  - Check text descriptions: "negative inflation", "below zero"
+  - Friedman rule typically implies negative optimal inflation around -4% to -5%
 - **Context clues**: Often discussed with price stability, welfare costs, Friedman rule, zero lower bound
 - **WARNING - Verify these carefully**:
- - V[π], Var[π], σ²(π) - likely variance, NOT inflation value
- - SD[π], σ(π) - likely standard deviation
- - Cov[π,x] - covariance, not inflation
- 
+  - V[π], Var[π], σ²(π) - likely variance, NOT inflation value
+  - SD[π], σ(π) - likely standard deviation
+  - Cov[π,x] - covariance, not inflation
+  
 **Verification Protocol for Ambiguous Notation:**
 1. **Check surrounding text**: How is this value discussed?
 2. **Check units**: Variance would be in (%)², inflation in %
@@ -144,10 +153,21 @@ Extract data from academic PDF articles for meta-analysis dataset creation. Proc
 - **Format**: Brief description (2-5 words)
 - **Column**: `Augmentation_Description`
 
-**5.4 (VARIANT)**
-- **Task**: Check for Ramsey rule consideration
-- **Search terms**: "Ramsey", "optimal policy", "welfare maximization", "commitment"
-- **Output**: 1 (Yes) or 0 (No)
+**5.4 (VARIANT) - ENHANCED RAMSEY RULE IDENTIFICATION**
+- **Task**: Identify if the model uses a **Ramsey approach** to jointly determine optimal fiscal and monetary policy
+- **Core Question**: Does the model find the optimal inflation rate by treating it as one of several **distortionary taxes** used to fund the government, because **lump-sum taxes are unavailable**?
+- **Look for (Positive Signals)**:
+  - Phrases: "Ramsey taxation", "optimal tax system", "inflation tax", "seigniorage", "public finance approach"
+  - Assumptions: An explicit "government budget constraint" must be financed by "distortionary taxes"; the model states that "lump-sum taxes" are NOT available
+  - Citations to authors like Phelps, Lucas & Stokey in the context of optimal policy
+  - Discussion of inflation as a revenue source for government
+  - Joint optimization of fiscal and monetary instruments
+- **Rule out if (Negative Signals)**:
+  - The model assumes "lump-sum taxes" are available (this usually points to the "Friedman Rule")
+  - The central bank minimizes an "ad-hoc" or "quadratic loss function" (e.g., stabilizing inflation around a given target and an output gap) that is not derived from a government financing problem
+  - Optimal inflation is determined solely by monetary frictions without fiscal considerations
+  - The paper focuses only on monetary policy without fiscal policy integration
+- **Output**: 1 (Yes - Ramsey approach) or 0 (No - not Ramsey approach)
 - **Column**: `Ramsey_Rule`
 
 **5.5 (VARIANT)**
@@ -173,16 +193,16 @@ Extract data from academic PDF articles for meta-analysis dataset creation. Proc
 - **Task**: Identify if government plays ACTIVE ROLE in the model
 - **CRITICAL VERIFICATION**: Government must be an active model component, not just mentioned
 - **Evidence of ACTIVE government role**:
- - Government budget constraint equation
- - Government spending (G) in resource constraint
- - Fiscal policy rules or instruments
- - Tax rates that affect equilibrium
- - Government debt dynamics
- - Transfer payments that enter household budget
+  - Government budget constraint equation
+  - Government spending (G) in resource constraint
+  - Fiscal policy rules or instruments
+  - Tax rates that affect equilibrium
+  - Government debt dynamics
+  - Transfer payments that enter household budget
 - **NOT sufficient for marking as 1**:
- - Only mentioning "government" in text
- - Discussing government in literature review
- - Government only as policy discussion
+  - Only mentioning "government" in text
+  - Discussing government in literature review
+  - Government only as policy discussion
 - **Search enhanced**: Look for equations with G_t, τ (tax), T (transfers), B^g (gov bonds)
 - **Output**: 1 (Yes - active role) or 0 (No - not in model)
 - **Column**: `Government_Included`
@@ -266,79 +286,97 @@ Extract data from academic PDF articles for meta-analysis dataset creation. Proc
 - **Output**: 1 (Yes) or 0 (No)
 - **Column**: `Zero_Lower_Bound`
 
-### CRITICAL SECTION: RESULTS EXTRACTION WITH ENHANCED PROTOCOLS
+### CRITICAL SECTION: ENHANCED RESULTS EXTRACTION PROTOCOLS
 
-**5.21 (VARIANT)**
-- **Task**: Identify and map all results locations
-- **Enhanced Process**: 
- 1. Create a mental map of ALL tables, figures, and text sections with numerical results
- 2. Specifically note which tables contain inflation, interest rates, and other variables
- 3. Check table titles, captions, and column headers carefully
- 4. Note section numbers where results are discussed in text
- 5. Look for results in: main text, appendices, online appendices, footnotes
-- **Format**: "Table 1 (inflation & interest rates), Table 3 (welfare), Text Section 4.2"
+**5.21 (VARIANT) - COMPREHENSIVE RESULTS MAPPING**
+- **Task**: Identify and map ALL results locations
+- **MANDATORY SCANNING PROTOCOL**: 
+  1. **Create exhaustive inventory**: List EVERY table, figure, and text section with numerical results
+  2. **Never skip tables**: Even if a table appears to show only welfare costs, it may contain optimal inflation values
+  3. **Check all locations**:
+     - Main body tables (Tables 1, 2, 3, etc.)
+     - Figures with numerical values
+     - Text sections with inline results
+     - Footnotes with numerical results
+     - Appendices (including online appendices)
+     - Robustness check sections
+  4. **For each location, note**:
+     - What variables are shown (inflation, interest rates, welfare, output)
+     - How many distinct inflation values appear
+     - Any parameter variations between results
+- **Cross-verification**: When similar tables appear, note differences
+- **Format**: "Table 1, Table 2, Figure 3, Text Section 4.2"
 - **Column**: `Results_Table`
 
 ### ENHANCED INFLATION EXTRACTION PROTOCOL
 
-**5.22 CRITICAL INFLATION EXTRACTION**
-- **Task**: Extract ALL inflation values with EXACT precision
-- SCAN EVERY TABLE COMPLETELY - never assume a table is irrelevant
-- **MANDATORY SIGN CHECK PROTOCOL**:
- 1. **Visual Inspection**: Look for minus sign (-) before the number
- 2. **Context Verification**: Check surrounding text for words like "negative", "deflation", "below zero"
- 3. **Model Type Check**: 
-    - Flexible price models often have negative optimal inflation (Friedman rule)
-    - New Keynesian models typically have values near zero
-    - ZLB models often have positive optimal inflation
- 4. **Range Verification**: 
-    - Friedman rule: typically -3% to -5%
-    - New Keynesian: typically -1% to +1%
-    - With ZLB: typically +1% to +4%
-    - But can be outside these ranges!
- 5. **Format Preservation**: 
-    - If source shows "-2.5%", extract as "-2.5"
-    - If source shows "negative 2.5 percent", extract as "-2.5"
-    - If source shows "deflation of 2.5%", extract as "-2.5"
-- **ABSOLUTE EXTRACTION RULES**:
-- If a table shows welfare comparisons but includes optimal inflation values → EXTRACT THEM
-- If optimal inflation appears as a benchmark/reference point → EXTRACT IT (mark as exogenous)
-- If you see "π* = -r" and r = 2% → Extract "NA" for π*, do NOT calculate
-- If ranges given (e.g., "1-2%") → Extract exactly midpoint 1.5%
-- SCAN EVERY TABLE COMPLETELY - never assume a table is irrelevant
+**5.22 CRITICAL INFLATION EXTRACTION - COMPLETE SCANNING REQUIRED**
+- **Task**: Extract ALL inflation values with EXACT precision from ALL sources
+- **MANDATORY COMPLETE EXTRACTION PROTOCOL**:
+  1. **NEVER STOP AFTER ONE TABLE** - Extract from ALL tables identified in 5.21
+  2. **COMPARE SIMILAR TABLES**: When tables have similar structure:
+     - Extract ALL rows from BOTH tables
+     - Note differences (e.g., row 9 might differ between tables)
+     - Do NOT assume identical results - verify each value
+  3. **SIGN VERIFICATION PROTOCOL**:
+     - **Visual inspection**: Look for minus sign (-) before the number
+     - **Cross-table verification**: If same parameter appears in multiple tables, verify sign consistency
+     - **Context verification**: Check surrounding text for "negative", "deflation", "below zero"
+     - **Model consistency**: Flexible price models → expect negative; New Keynesian → expect near zero
+  4. **EXTRACTION RULES**:
+     - Extract EVERY inflation value, even if it appears redundant
+     - From Tables: Extract for example "0.03" (NOT "-0.03")
+     - If value appears in multiple tables with different signs → flag for verification
+     - Preserve exact decimal places as shown
+  5. **COMPLETENESS CHECK**:
+     - Count inflation values in source
+     - Count extracted rows
+     - These MUST match
 - **Column**: `Results_Inflation`
 
 **5.40 INTEREST RATE EXTRACTION**
 - **Task**: Extract interest rates corresponding to each inflation value
 - **Process**: 
- 1. Find the interest rate that pairs with each inflation result
- 2. Check Fisher equation relationship (nominal = real + inflation)
- 3. Preserve signs exactly as shown
+  1. Find the interest rate that pairs with each inflation result
+  2. Check Fisher equation relationship (nominal = real + inflation)
+  3. Preserve signs exactly as shown
 - **Column**: `Interest_Rate`
 
 ### EXTRACTION VERIFICATION PROTOCOL
 
 After extracting from EACH source:
-1. **Sign Double-Check**: Re-verify all negative values are captured with minus signs
-2. **Completeness Check**: Count results in source vs. extracted rows
-3. **Relationship Check**: Verify economic relationships make sense
+1. **Completeness Double-Check**: 
+   - Did I extract from ALL tables listed in 5.21?
+   - Does my row count match the total inflation results count?
+2. **Sign Triple-Check**: 
+   - Re-verify all negative values have minus signs
+   - Cross-verify between similar tables
+3. **Consistency Check**: 
+   - When same scenario appears in multiple tables, are values consistent?
+   - If not, extract both and note the difference
 
-**5.23 (INVARIANT)**
-- **Task**: Count total distinct inflation results
-- **Process**: Count all unique inflation values across ALL sources
-- **Output**: Total count
-- **Verification**: This number should match your final row count
+**5.23 Total Count Verification**
+- **Task**: Count total distinct inflation results across ALL sources
+- **Process**: 
+  1. Count results in each table
+  2. Count results in each figure
+  3. Count results mentioned in text
+  4. Count results in appendices
+  5. Sum total from all sources
+- **Critical**: This MUST equal your final row count
+- **Example**: "Table 1: 5 results, Table 3: 8 results, Figure 2: 3 results, Text section 4.2: 2 results = 18 total results"
 - **Column**: `Num_Inflation_Results`
+
 
 **5.24 (VARIANT)**
 - **Task**: Identify author's preferred estimate
 - **Enhanced identifiers**: 
- - "baseline result"
- - "main specification"  
- - "preferred estimate"
- - "benchmark"
- - Results emphasized in abstract/conclusion
- - Results used for policy implications
+  - "baseline result"
+  - "main specification"  
+  - "preferred estimate"
+  - "benchmark"
+  - Results emphasized in abstract/conclusion
+  - Results used for policy implications
 - **Output**: 1 (preferred) or 0 (not preferred)
 - **Column**: `Preferred_Estimate`
 
@@ -352,36 +390,36 @@ After extracting from EACH source:
 - **Task**: Describe assumptions for each inflation result
 - **Process**: Note the specific model variant/calibration/scenario
 - **Format**: Brief assumption description
-- **Example**: "Baseline calibration with sticky prices", "With ZLB constraint"
+- **Example**: "Baseline calibration with sticky prices", "With ZLB constraint", "No growth (g = 0)"
 - **Column**: `Results_Inflation_Assumption`
 
 ### ENHANCED PARAMETER EXTRACTION PROTOCOL
 
 **CRITICAL PARAMETER SEARCH STRATEGY**:
 1. **Primary Sources** (Check in this order):
-  - Calibration tables (often Table 1 or in appendix)
-  - Parameter tables/sections
-  - Text descriptions of calibration
-  - Footnotes with parameter values
-  - Online appendices
+   - Calibration tables (often Table 1 or in appendix)
+   - Parameter tables/sections
+   - Text descriptions of calibration
+   - Footnotes with parameter values
+   - Online appendices
   
 2. **Search Patterns**:
-  - Look for sections titled: "Calibration", "Parameters", "Baseline Values"
-  - Search for parameter symbols AND their descriptions
-  - Check around equations where parameters first appear
-  - Look for phrases like "we set", "calibrated to", "following [citation]"
-  - Do NOT calculate any parameters, extract only stated values
+   - Look for sections titled: "Calibration", "Parameters", "Baseline Values"
+   - Search for parameter symbols AND their descriptions
+   - Check around equations where parameters first appear
+   - Look for phrases like "we set", "calibrated to", "following [citation]"
+   - Do NOT calculate any parameters, extract only stated values
 
 3. **Common Parameter Locations**:
-  - After model description, before results
-  - In subsection on calibration/estimation
-  - In tables with "Parameter", "Value", "Description" columns
-  - In footnotes explaining choices
+   - After model description, before results
+   - In subsection on calibration/estimation
+   - In tables with "Parameter", "Value", "Description" columns
+   - In footnotes explaining choices
 
 4. **Zero Value Protocol**:
-  - Zero IS a valid parameter value - extract as "0" or "0.0"
-  - Common zero parameters: money in utility (cashless), adjustment costs (flexible)
-  - Never skip zero values
+   - Zero IS a valid parameter value - extract as "0" or "0.0"
+   - Common zero parameters: money in utility (cashless), adjustment costs (flexible)
+   - Never skip zero values
 
 **5.27 (VARIANT) - Households' discount factor**
 - **Common symbols**: β, beta, δ
@@ -469,14 +507,23 @@ After extracting from EACH source:
 **6.1 (INVARIANT)** - Assign sequential study ID → **Column**: `Idstudy`
 **6.2 (VARIANT)** - Assign sequential estimate ID for each inflation result → **Column**: `IdEstimate`
 
-## EXTRACTION QUALITY CONTROL
+## ENHANCED EXTRACTION QUALITY CONTROL
 
 **Critical Final Checks**:
-1. **Sign Verification**: Re-check ALL negative values have minus signs
-2. **Parameter Completeness**: Did you check ALL possible parameter locations?
-3. **Count Verification**: Number of rows matches count of inflation results
-4. **Zero Values**: Any zeros properly recorded as "0" not "NA"
-5. **Government Role**: If Government_Included = 1, verify active model role exists
+1. **Complete Extraction Verification**:
+   - Did I extract from EVERY table listed in 5.21?
+   - Does my row count equal the total from 5.23?
+   - Did I check all Tables (and any other similar tables)?
+2. **Sign Verification**: 
+   - Re-check ALL values for correct signs
+   - Cross-verify signs between similar tables
+3. **Parameter Completeness**: 
+   - Checked ALL possible parameter locations?
+   - Recorded zeros as "0" not "NA"?
+4. **Ramsey Rule Verification**:
+   - Did I look for fiscal-monetary optimization?
+   - Did I check for lump-sum tax availability?
+   - Did I distinguish from ad-hoc loss functions?
 
 ## ENHANCED VALIDATION CHECKLIST
 
@@ -484,33 +531,30 @@ After extracting from EACH source:
 - [ ] Located paper's notation section
 - [ ] Identified model type (affects expected parameter ranges)
 - [ ] Found calibration/parameter section
+- [ ] Mapped ALL tables with results (not just first one found)
 
 ### During Extraction:
-- [ ] Checked signs on ALL numerical values
-- [ ] Searched multiple locations for each parameter
-- [ ] Verified economic relationships make sense
-- [ ] Preserved exact numerical precision
-- [ ] Confirmed government has active model role if marked as 1
+- [ ] Extracted from ALL tables, not just one
+- [ ] Compared similar tables for differences
+- [ ] Verified signs match source exactly
+- [ ] Checked for Ramsey taxation framework vs other optimal policy approaches
+- [ ] Searched exhaustively for parameters
 
 ### Post-Extraction:
-- [ ] All negative inflation values show minus signs
-- [ ] Parameter search was exhaustive (tables, text, appendix)
-- [ ] Zero values recorded as "0" not "NA"
-- [ ] Row count matches inflation result count
-- [ ] Government inclusion based on model equations, not just mentions
+- [ ] Row count matches total inflation results
+- [ ] All similar scenarios have consistent signs across tables
+- [ ] No tables were skipped
+- [ ] Ramsey Rule based on fiscal-monetary framework, not just keywords
 
 ## CRITICAL REMINDERS
 
-1. **SIGN PRESERVATION IS MANDATORY** - double-check all negative values
-2. **PARAMETER SEARCH MUST BE EXHAUSTIVE** - check tables, text, footnotes, appendices
-3. **ZEROS ARE VALID** - never skip them
-4. **FRIEDMAN RULE IMPLIES NEGATIVE** - typically -3% to -5% inflation
-5. **When in doubt about signs** - check context and model type
-6. **GOVERNMENT MUST BE IN MODEL** - not just mentioned in text
-
-## REQUIRED OUTPUT FORMAT
-
-### EXACT COLUMN ORDER (MANDATORY)
+1. **COMPLETE EXTRACTION IS MANDATORY** - extract from ALL tables, not just first one
+2. **SIGN PRESERVATION IS CRITICAL** - Double-check every negative value
+3. **CROSS-VERIFY SIMILAR TABLES** - They may have subtle differences
+4. **RAMSEY RULE REQUIRES FISCAL COMPONENT** - not just "optimal policy"
+5. **PARAMETER SEARCH MUST BE EXHAUSTIVE** - check everywhere
+6. **ZEROS ARE VALID** - never skip them
+7. **When similar tables appear** - extract from BOTH and verify consistency
 
 ## REQUIRED OUTPUT FORMAT
 
@@ -519,16 +563,16 @@ After extracting from EACH source:
 Idstudy	IdEstimate	Author	Author_Affiliation	DOI	Journal_Name	Num_Citations	Year	Base_Model_Type	Augmented_base_model	Augmentation_Description	Ramsey_Rule	HH_Included	Firms_Included	Banks_Included	Government_Included	HH_Maximization_Type	HH_Maximized_Vars	Producer_Type	Producer_Assumption	Other_Agent_Included	Other_Agent_Assumptions	Empirical_Research	Country	Flexible_Price_Assumption	Exogenous_Inflation	Households_discount_factor	Consumption_curvature_parameter	Disutility_of_labor	Inverse_of_labor_supply_elasticity	Money_curvature_parameter	Loan_to_value_ratio	Labor_share_of_output	Depositors_discount_factor	Price_adjustment_cost	Elasticity_of_substitution_between_goods	AR1_coefficient_of_TFP	Std_dev_to_TFP_shock	Zero_Lower_Bound	Results_Table	Results_Inflation	Results_Inflation_Assumption	Preferred_Estimate	Reason_for_Preferred	Std_Dev_Inflation	Interest_Rate	Impact_Factor
 ```
 
-### PROCESSING WORKFLOW (WITH ENHANCED PROTOCOLS)
+### ENHANCED PROCESSING WORKFLOW
 1. **Read PDF completely** and identify notation/variable definitions
-2. **Map all results locations** (tables, figures, text) including parameter tables
+2. **Map ALL results locations comprehensively** - never stop at first table
 3. **Answer questions 1.1-5.20** systematically
-4. **For EACH table: Execute Table Reset Protocol**
-5. **For large tables: Execute Extraction Completeness Protocol**
-6. **Extract results with anomaly detection active**
-7. **Apply Zero Value Protocol for parameters**
-8. **Validate using enhanced checklist and quality control**
-9. **Search external sources** when required
+4. **For question 5.4**: Apply enhanced Ramsey Rule criteria
+5. **For question 5.21**: List EVERY table/figure with results
+6. **For question 5.22**: Extract from ALL tables, cross-verify similar ones
+7. **Apply sign verification** especially for similar values across tables
+8. **Search exhaustively for parameters** in all locations
+9. **Validate extraction completeness** - row count must match
 10. **Create multiple rows** for multiple inflation results
 11. **Fill every cell** with data or "NA" (including zeros)
 12. **Format as tab-separated table**
