@@ -1,10 +1,11 @@
-# AI-Optimized Meta-Analysis Research Assistant Instructions (Enhanced v5)
+# AI-Optimized Meta-Analysis Research Assistant Instructions (Enhanced v6)
 
 ## CRITICAL SYSTEM DIRECTIVES
 
 ### MANDATORY COMPLIANCE REQUIREMENTS
 - **NEVER leave any cell empty** - use "NA" for missing information
 - **NEVER fabricate data** - only report verifiable information from sources
+- **NEVER include a study if there is no value for inflation** - do not use "NA" for inflation result
 - **ALWAYS use exact column names** as specified below
 - **ALWAYS follow the 0/1 coding system** for Yes/No questions (0 = No, 1 = Yes)
 - **ALWAYS extract ALL inflation results** from ALL tables, figures, and text
@@ -23,10 +24,9 @@
 ### EXTRACTION PRIORITY HIERARCHY
 When facing conflicts or ambiguities:
 1. **Explicit numerical values** > Calculated values
-2. **Tables** > Text > Figures
+2. **Tables** > Text
 3. **Main paper** > Appendix > Online supplement
-4. **Preserve source format** > Standardization
-5. **Extract as "NA"** > Guessing
+4. **Extract as "NA"** > Guessing
 
 ## TASK OVERVIEW
 Extract data from academic PDF articles for meta-analysis dataset creation. Process the attached PDF systematically using the numbered questions below. Each question corresponds to a specific Excel column.
@@ -291,7 +291,7 @@ Extract data from academic PDF articles for meta-analysis dataset creation. Proc
 **5.21 (VARIANT) - COMPREHENSIVE RESULTS MAPPING**
 - **Task**: Identify and map ALL results locations
 - **MANDATORY SCANNING PROTOCOL**: 
-  1. **Create exhaustive inventory**: List EVERY table, figure, and text section with numerical results
+  1. **Create exhaustive inventory**: List EVERY table, and text section with numerical results
   2. **Never skip tables**: Even if a table appears to show only welfare costs, it may contain optimal inflation values
   3. **Check all locations**:
      - Main body tables (Tables 1, 2, 3, etc.)
