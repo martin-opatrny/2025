@@ -1,0 +1,241 @@
+# Document 2: Model Structure & Assumptions Instructions
+
+## CRITICAL SYSTEM DIRECTIVES
+
+## TASK OVERVIEW
+Extract data from academic PDF articles for meta-analysis dataset creation. Process the attached PDF systematically using the numbered questions below. Each question corresponds to a specific Excel column.
+
+### MANDATORY COMPLIANCE REQUIREMENTS
+- **NEVER leave any cell empty** - use "NA" for missing information
+- **NEVER fabricate data** - only report verifiable information from sources
+- **ALWAYS use exact column names** as specified in the complete output format
+- **ALWAYS follow the 0/1 coding system** for Yes/No questions (0 = No, 1 = Yes)
+- **ALWAYS fill only assigned columns** - use "NA" for all other columns
+
+### OUTPUT FORMAT REQUIREMENTS
+- Generate a table with ALL 47 column headers (complete list at end of document)
+- Fill ONLY the columns specified in this document
+- Mark all other columns as "NA"
+- Use tab-separated format for easy Excel import
+- Include header row with all column names
+
+## COMPLETE COLUMN LIST (47 COLUMNS)
+```
+Idstudy	IdEstimate	Author	Author_Affiliation	DOI	Journal_Name	Num_Citations	Year	Base_Model_Type	Augmented_base_model	Augmentation_Description	Ramsey_Rule	HH_Included	Firms_Included	Banks_Included	Government_Included	HH_Maximization_Type	HH_Maximized_Vars	Producer_Type	Producer_Assumption	Other_Agent_Included	Other_Agent_Assumptions	Empirical_Research	Country	Flexible_Price_Assumption	Exogenous_Inflation	Households_discount_factor	Consumption_curvature_parameter	Disutility_of_labor	Inverse_of_labor_supply_elasticity	Money_curvature_parameter	Loan_to_value_ratio	Labor_share_of_output	Depositors_discount_factor	Price_adjustment_cost	Elasticity_of_substitution_between_goods	AR1_coefficient_of_TFP	Std_dev_to_TFP_shock	Zero_Lower_Bound	Results_Table	Results_Inflation	Results_Inflation_Assumption	Preferred_Estimate	Reason_for_Preferred	Std_Dev_Inflation	Interest_Rate	Impact_Factor
+```
+
+## DOCUMENT 2 ASSIGNED COLUMNS
+This document extracts the following columns:
+- Idstudy (copy from Document 1 or assign if working independently)
+- Augmented_base_model
+- Augmentation_Description
+- Ramsey_Rule
+- HH_Included
+- Firms_Included
+- Banks_Included
+- Government_Included
+- HH_Maximization_Type
+- HH_Maximized_Vars
+- Producer_Type
+- Producer_Assumption
+- Other_Agent_Included
+- Other_Agent_Assumptions
+- Empirical_Research
+- Flexible_Price_Assumption
+- Exogenous_Inflation
+- Growth_Included
+- Zero_Lower_Bound
+
+All other columns must be filled with "NA".
+
+## EXTRACTION INSTRUCTIONS
+
+### 1. STUDY IDENTIFICATION
+- **Column**: `Idstudy`
+- **Task**: Use same ID as Document 1 (or assign starting from 1 if working independently)
+
+### 2. MODEL AUGMENTATION
+
+**Task 5.2 - Augmented Model Check**
+- **Column**: `Augmented_base_model`
+- **Task**: Determine if model has augmentations
+- **Process**: Look for model modifications, extensions, or additions beyond standard version
+- **Output**: 1 (Yes) or 0 (No)
+
+**Task 5.3 - Augmentation Description**
+- **Column**: `Augmentation_Description`
+- **Task**: Describe model augmentations
+- **Condition**: Only if Task 5.2 = 1, otherwise "NA"
+- **Format**: Brief description (2-5 words)
+
+### 3. RAMSEY RULE IDENTIFICATION
+
+**Task 5.4 - Enhanced Ramsey Rule Identification**
+- **Column**: `Ramsey_Rule`
+- **Task**: Identify if the model uses a **Ramsey approach** to jointly determine optimal fiscal and monetary policy
+- **Core Question**: Does the model find the optimal inflation rate by treating it as one of several **distortionary taxes** used to fund the government, because **lump-sum taxes are unavailable**?
+- **Look for (Positive Signals)**:
+  - Phrases: "Ramsey taxation", "optimal tax system", "inflation tax", "seigniorage", "public finance approach"
+  - Assumptions: An explicit "government budget constraint" must be financed by "distortionary taxes"; the model states that "lump-sum taxes" are NOT available
+  - Citations to authors like Phelps, Lucas & Stokey in the context of optimal policy
+  - Discussion of inflation as a revenue source for government
+  - Joint optimization of fiscal and monetary instruments
+- **Rule out if (Negative Signals)**:
+  - The model assumes "lump-sum taxes" are available (this usually points to the "Friedman Rule")
+  - The central bank minimizes an "ad-hoc" or "quadratic loss function" (e.g., stabilizing inflation around a given target and an output gap) that is not derived from a government financing problem
+  - Optimal inflation is determined solely by monetary frictions without fiscal considerations
+  - The paper focuses only on monetary policy without fiscal policy integration
+- **Output**: 1 (Yes - Ramsey approach) or 0 (No - not Ramsey approach)
+
+### 4. AGENT IDENTIFICATION
+
+**Task 5.5 - Household Agents**
+- **Column**: `HH_Included`
+- **Task**: Identify household agents in model
+- **Search terms**: "household", "consumers", "families", "representative agent"
+- **Output**: 1 (Yes) or 0 (No)
+
+**Task 5.6 - Firm/Entrepreneur Agents**
+- **Column**: `Firms_Included`
+- **Task**: Identify firm/entrepreneur agents
+- **Search terms**: "firms", "entrepreneurs", "producers", "companies"
+- **Output**: 1 (Yes) or 0 (No)
+
+**Task 5.7 - Banking Sector**
+- **Column**: `Banks_Included`
+- **Task**: Identify banking sector in model
+- **Search terms**: "banks", "financial intermediaries", "banking sector", "credit"
+- **Critical**: Re-read carefully if uncertain
+- **Output**: 1 (Yes) or 0 (No)
+
+**Task 5.8 - Government Verification**
+- **Column**: `Government_Included`
+- **Task**: Identify if government plays ACTIVE ROLE in the model
+- **CRITICAL VERIFICATION**: Government must be an active model component, not just mentioned
+- **Evidence of ACTIVE government role**:
+  - Government budget constraint equation
+  - Government spending (G) in resource constraint
+  - Fiscal policy rules or instruments
+  - Tax rates that affect equilibrium
+  - Government debt dynamics
+  - Transfer payments that enter household budget
+- **NOT sufficient for marking as 1**:
+  - Only mentioning "government" in text
+  - Discussing government in literature review
+  - Government only as policy discussion
+- **Search enhanced**: Look for equations with G_t, τ (tax), T (transfers), B^g (gov bonds)
+- **Output**: 1 (Yes - active role) or 0 (No - not in model)
+
+### 5. AGENT CHARACTERISTICS
+
+**Task 5.9 - Household Maximization Type**
+- **Column**: `HH_Maximization_Type`
+- **Task**: Identify what households maximize
+- **Common answers**: "utility", "welfare", "consumption plus leisure", "expected utility"
+- **Format**: Short phrase (2-4 words)
+
+**Task 5.10 - Household Maximized Variables**
+- **Column**: `HH_Maximized_Vars`
+- **Task**: List variables in household optimization
+- **Common answers**: "consumption, labor", "consumption, money, leisure", "consumption, hours worked"
+- **Format**: Comma-separated list
+
+**Task 5.11 - Producer Types**
+- **Column**: `Producer_Type`
+- **Task**: Identify all firm types in model
+- **Process**: 
+  1. Look for explicit model equations or mathematical formulations involving firms
+  2. Check if firms are actual decision-making agents with optimization problems
+  3. Don't count casual mentions - need evidence of firms as active model components
+- **Examples**: "intermediate goods firms, final goods firms", "wholesale firms, retail firms"
+- **Format**: Comma-separated list
+- **Robustness Check**: Verify firms have optimization problems, production functions, or decision variables
+
+**Task 5.12 - Producer Assumptions**
+- **Column**: `Producer_Assumption`
+- **Task**: Identify market structure assumptions for each firm type
+- **Search terms**: "monopolistic competition", "perfect competition", "monopoly", "Dixit-Stiglitz"
+- **Format**: "firm type: assumption" format
+- **Example**: "intermediate firms: monopolistic competition, final firms: perfect competition"
+
+**Task 5.13 - Other Agents Check**
+- **Column**: `Other_Agent_Included`
+- **Task**: Check for other agents beyond households/firms/banks/government
+- **Exclusions**: Do not count households, firms, banks, government
+- **Examples**: "labor unions", "central bank", "foreign sector"
+- **Output**: 1 (Yes) or 0 (No)
+
+**Task 5.14 - Other Agent Assumptions**
+- **Column**: `Other_Agent_Assumptions`
+- **Task**: Describe other agents' assumptions
+- **Condition**: Only if Task 5.13 = 1, otherwise "NA"
+- **Format**: Brief description
+
+### 6. RESEARCH TYPE
+
+**Task 5.15 - Empirical Research Check**
+- **Column**: `Empirical_Research`
+- **Task**: Determine if research uses empirical data/estimation
+- **Process**: Look if the result is model output using calibration (not empirical) or based on regression analysis/data estimation (empirical)
+- **Output**: 1 (Yes) or 0 (No)
+
+### 7. MODEL ASSUMPTIONS (PER RESULT)
+
+**Task 5.17 - Price Flexibility**
+- **Column**: `Flexible_Price_Assumption`
+- **Task**: Check price flexibility assumption for each inflation result
+- **Process**: For each inflation result, determine if prices are flexible or sticky
+- **Output**: 1 (flexible prices) or 0 (sticky prices)
+- **Note**: May vary across different results in same paper
+
+**Task 5.18 - Exogenous Inflation**
+- **Column**: `Exogenous_Inflation`
+- **Task**: Check if inflation is exogenous
+- **Process**: Determine if inflation is set externally (exogenous) vs. determined by model (endogenous)
+- **Search terms**: "exogenous inflation", "inflation target", "inflation assumption", "given inflation rate"
+- **Output**: 1 (exogenous) or 0 (endogenous)
+
+**Task 5.19 - Growth Parameters**
+- **Column**: `Growth_Included`
+- **Task**: Check for growth parameters
+- **Search terms**: "growth rate", "trend growth", "g", "productivity growth"
+- **Output**: 1 (Yes) or 0 (No)
+- **Note**: Not a column in final output but needed for extraction process
+
+**Task 5.20 - Zero Lower Bound**
+- **Column**: `Zero_Lower_Bound`
+- **Task**: Check zero lower bound environment
+- **Process**: Determine if zero lower bound constraint is considered in the model
+- **Search terms**: "zero lower bound", "ZLB", "effective lower bound", "ELB"
+- **Output**: 1 (Yes) or 0 (No)
+
+## CRITICAL REMINDERS
+
+1. **RAMSEY RULE REQUIRES FISCAL COMPONENT** - not just "optimal policy"
+2. **GOVERNMENT MUST BE ACTIVE** - not just mentioned in text
+3. **BINARY VALUES ARE CRITICAL** - always 0 or 1, never blank
+4. **PRICE FLEXIBILITY MAY VARY** - check for each result scenario
+
+## VALIDATION CHECKLIST
+
+### Pre-Extraction:
+- [ ] Located model description section
+- [ ] Found agent descriptions
+- [ ] Identified methodology
+
+### During Extraction:
+- [ ] Verified Ramsey Rule has fiscal-monetary joint optimization
+- [ ] Confirmed government has active model role
+- [ ] Checked all agent types systematically
+
+### Post-Extraction:
+- [ ] All binary columns have 0 or 1 values
+- [ ] All text columns have appropriate descriptions or "NA"
+- [ ] No columns left empty
+
+## OUTPUT EXAMPLE
+```
+Idstudy	IdEstimate	Author	Author_Affiliation	DOI	Journal_Name	Num_Citations	Year	Base_Model_Type	Augmented_base_model	Augmentation_Description	Ramsey_Rule	HH_Included	Firms_Included	Banks_Included	Government_Included	HH_Maximization_Type	HH_Maximized_Vars	Producer_Type	Producer_Assumption	Other_Agent_Included	Other_Agent_Assumptions	Empirical_Research	Country	Flexible_Price_Assumption	Exogenous_Inflation	Households_discount_factor	Consumption_curvature_parameter	Disutility_of_labor	Inverse_of_labor_supply_elasticity	Money_curvature_parameter	Loan_to_value_ratio	Labor_share_of_output	Depositors_discount_factor	Price_adjustment_cost	Elasticity_of_substitution_between_goods	AR1_coefficient_of_TFP	Std_dev_to_TFP_shock	Zero_Lower_Bound	Results_Table	Results_Inflation	Results_Inflation_Assumption	Preferred_Estimate	Reason_for_Preferred	Std_Dev_Inflation	Interest_Rate	Impact_Factor
+1	NA	NA	NA	NA	NA	NA	NA	NA	1	Financial frictions	0	1	1	1	1	utility	consumption, labor	intermediate firms, final firms	intermediate firms: monopolistic competition, final firms: perfect competition	0	NA	0	NA	0	0	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	1	NA	NA	NA	NA	NA	NA	NA	NA
+```
+

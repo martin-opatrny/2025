@@ -1,0 +1,350 @@
+# Document 3: Results & Parameters Instructions
+
+## TASK OVERVIEW
+Extract data from academic PDF articles for meta-analysis dataset creation. Process the attached PDF systematically using the numbered questions below. Each question corresponds to a specific Excel column.
+
+## CRITICAL SYSTEM DIRECTIVES
+
+### MANDATORY COMPLIANCE REQUIREMENTS
+- **NEVER leave any cell empty** - use "NA" for missing information
+- **NEVER fabricate data** - only report verifiable information from sources
+- **ALWAYS use exact column names** as specified in the complete output format
+- **ALWAYS extract ALL inflation results** from ALL tables, figures, and text
+- **ALWAYS verify variable identification** using notation sections and context
+- **ALWAYS reset assumptions for each new table** - never carry over structure assumptions
+- **ALWAYS preserve numerical signs** - negative values must include minus sign
+- **ALWAYS cross-verify results** when similar tables appear
+- **ALWAYS fill only assigned columns** - use "NA" for all other columns
+
+### OUTPUT FORMAT REQUIREMENTS
+- Generate a table with ALL 47 column headers (complete list at end of document)
+- Fill ONLY the columns specified in this document
+- Mark all other columns as "NA"
+- Each row = one inflation result from the paper
+- Use tab-separated format for easy Excel import
+- Include header row with all column names
+
+## COMPLETE COLUMN LIST (47 COLUMNS)
+```
+Idstudy	IdEstimate	Author	Author_Affiliation	DOI	Journal_Name	Num_Citations	Year	Base_Model_Type	Augmented_base_model	Augmentation_Description	Ramsey_Rule	HH_Included	Firms_Included	Banks_Included	Government_Included	HH_Maximization_Type	HH_Maximized_Vars	Producer_Type	Producer_Assumption	Other_Agent_Included	Other_Agent_Assumptions	Empirical_Research	Country	Flexible_Price_Assumption	Exogenous_Inflation	Households_discount_factor	Consumption_curvature_parameter	Disutility_of_labor	Inverse_of_labor_supply_elasticity	Money_curvature_parameter	Loan_to_value_ratio	Labor_share_of_output	Depositors_discount_factor	Price_adjustment_cost	Elasticity_of_substitution_between_goods	AR1_coefficient_of_TFP	Std_dev_to_TFP_shock	Zero_Lower_Bound	Results_Table	Results_Inflation	Results_Inflation_Assumption	Preferred_Estimate	Reason_for_Preferred	Std_Dev_Inflation	Interest_Rate	Impact_Factor
+```
+
+## DOCUMENT 3 ASSIGNED COLUMNS
+This document extracts the following columns:
+- Idstudy (copy from Document 1 or assign if working independently)
+- IdEstimate
+- Households_discount_factor through Zero_Lower_Bound (all parameters)
+- Results_Table
+- Results_Inflation
+- Results_Inflation_Assumption
+- Preferred_Estimate
+- Reason_for_Preferred
+- Std_Dev_Inflation
+- Interest_Rate
+
+All other columns must be filled with "NA".
+
+## CRITICAL NOTATION GUIDE (READ FIRST)
+
+### ENHANCED VARIABLE IDENTIFICATION PROTOCOL
+
+**Inflation Variables - Extended Recognition:**
+- **Standard notations**: π, π*, πe, π̄, phi, φ, Π, π^*, π_t, π^opt
+- **Expected value notation**: E[π], E(π), 𝔼[π], E_t[π] - these ARE inflation values
+- **Common labels**: "inflation", "inflation rate", "optimal inflation", "inflation target", "steady-state inflation"
+- **Typical range**: -10% to 10% (annualized) - but can be outside this range
+- **CRITICAL SIGN PRESERVATION**: 
+  - Always check for negative signs (-) before numbers
+  - Look for "deflation" which implies negative inflation
+  - Check text descriptions: "negative inflation", "below zero"
+  - Friedman rule typically implies negative optimal inflation around -4% to -5%
+- **Context clues**: Often discussed with price stability, welfare costs, Friedman rule, zero lower bound
+- **WARNING - Verify these carefully**:
+  - V[π], Var[π], σ²(π) - likely variance, NOT inflation value
+  - SD[π], σ(π) - likely standard deviation
+  - Cov[π,x] - covariance, not inflation
+  
+**Verification Protocol for Ambiguous Notation:**
+1. **Check surrounding text**: How is this value discussed?
+2. **Check units**: Variance would be in (%)², inflation in %
+3. **Check magnitude**: Variance typically much smaller than inflation
+4. **Check table headers**: Often specify "mean" vs "variance"
+5. **When uncertain**: Look for explicit definition in text
+
+**Decision Rule**: 
+- E[π] → Extract as inflation
+- V[π] → Only extract if explicitly confirmed as inflation estimator, not variance
+
+**Interest Rate Variables:**
+- Common symbols: i, r, R, i*, r*, ī, r̄, i^n (nominal), r^r (real)
+- Common labels: "interest rate", "nominal rate", "policy rate", "real rate"
+- Typical range: -5% to 20% (annualized)
+- Context clues: Often discussed with monetary policy, Taylor rule, Fisher equation
+
+## EXTRACTION INSTRUCTIONS
+
+### 1. STUDY IDENTIFICATION
+- **Column**: `Idstudy`
+- **Task**: Use same ID as Document 1 (or assign starting from 1 if working independently)
+
+- **Column**: `IdEstimate`
+- **Task**: Assign sequential estimate ID for each inflation result
+- **Format**: Integer starting from 1 for each study
+
+### 2. CRITICAL RESULTS EXTRACTION
+
+**Task 5.21 - COMPREHENSIVE RESULTS MAPPING**
+- **Column**: `Results_Table`
+- **Task**: Identify and map ALL results locations
+- **MANDATORY SCANNING PROTOCOL**: 
+  1. **Create exhaustive inventory**: List EVERY table, figure, and text section with numerical results
+  2. **Never skip tables**: Even if a table appears to show only welfare costs, it may contain optimal inflation values
+  3. **Check all locations**:
+     - Main body tables (Tables 1, 2, 3, etc.)
+     - Figures with numerical values
+     - Text sections with inline results
+     - Footnotes with numerical results
+     - Appendices (including online appendices)
+     - Robustness check sections
+  4. **For each location, note**:
+     - What variables are shown (inflation, interest rates, welfare, output)
+     - How many distinct inflation values appear
+     - Any parameter variations between results
+- **Cross-verification**: When similar tables appear, note differences
+- **Format**: "Table 1, Table 2, Figure 3, Text Section 4.2"
+
+**Task 5.22 - CRITICAL INFLATION EXTRACTION - COMPLETE SCANNING REQUIRED**
+- **Column**: `Results_Inflation`
+- **Task**: Extract ALL inflation values with EXACT precision from ALL sources
+- **MANDATORY COMPLETE EXTRACTION PROTOCOL**:
+  1. **NEVER STOP AFTER ONE TABLE** - Extract from ALL tables identified in 5.21
+  2. **COMPARE SIMILAR TABLES**: When tables have similar structure:
+     - Extract ALL rows from BOTH tables
+     - Note differences (e.g., row 9 might differ between tables)
+     - Do NOT assume identical results - verify each value
+  3. **SIGN VERIFICATION PROTOCOL**:
+     - **Visual inspection**: Look for minus sign (-) before the number
+     - **Cross-table verification**: If same parameter appears in multiple tables, verify sign consistency
+     - **Context verification**: Check surrounding text for "negative", "deflation", "below zero"
+     - **Model consistency**: Flexible price models → expect negative; New Keynesian → expect near zero
+  4. **EXTRACTION RULES**:
+     - Extract EVERY inflation value, even if it appears redundant
+     - Preserve exact decimal places as shown
+     - If value appears in multiple tables with different signs → flag for verification
+  5. **COMPLETENESS CHECK**:
+     - Count inflation values in source
+     - Count extracted rows
+     - These MUST match
+
+**Task 5.23 - Total Count Verification**
+- **Task**: Count total distinct inflation results across ALL sources
+- **Process**: 
+  1. Count results in each table
+  2. Count results in each figure
+  3. Count results mentioned in text
+  4. Count results in appendices
+  5. Sum total from all sources
+- **Critical**: This MUST equal your final row count
+- **Note**: Not a final column but verification step
+
+### 3. RESULT CHARACTERISTICS
+
+**Task 5.24 - Preferred Estimate**
+- **Column**: `Preferred_Estimate`
+- **Task**: Identify author's preferred estimate
+- **Enhanced identifiers**: 
+  - "baseline result"
+  - "main specification"  
+  - "preferred estimate"
+  - "benchmark"
+  - Results emphasized in abstract/conclusion
+  - Results used for policy implications
+- **Output**: 1 (preferred) or 0 (not preferred)
+
+**Task 5.25 - Reason for Preferred**
+- **Column**: `Reason_for_Preferred`
+- **Task**: Explain why estimate is preferred
+- **Condition**: Only for preferred estimates (Task 5.24 = 1), otherwise "NA"
+- **Format**: 1-2 professional sentences
+
+**Task 5.26 - Results Assumptions**
+- **Column**: `Results_Inflation_Assumption`
+- **Task**: Describe assumptions for each inflation result
+- **Process**: Note the specific model variant/calibration/scenario
+- **Format**: Brief assumption description
+- **Example**: "Baseline calibration with sticky prices", "With ZLB constraint", "No growth (g = 0)"
+
+**Task 5.39 - Standard Deviation of Inflation**
+- **Column**: `Std_Dev_Inflation`
+- **Task**: Extract standard deviation of inflation result
+- **Process**: Look for uncertainty measures, confidence intervals, posterior distributions
+- **May appear**: In parentheses, brackets, or separate column
+
+**Task 5.40 - Interest Rate**
+- **Column**: `Interest_Rate`
+- **Task**: Extract interest rates corresponding to each inflation value
+- **Process**: 
+  1. Find the interest rate that pairs with each inflation result
+  2. Check Fisher equation relationship (nominal = real + inflation)
+  3. Preserve signs exactly as shown
+
+### 4. PARAMETER EXTRACTION
+
+**CRITICAL PARAMETER SEARCH STRATEGY**:
+1. **Primary Sources** (Check in this order):
+   - Calibration tables (often Table 1 or in appendix)
+   - Parameter tables/sections
+   - Text descriptions of calibration
+   - Footnotes with parameter values
+   - Online appendices
+  
+2. **Search Patterns**:
+   - Look for sections titled: "Calibration", "Parameters", "Baseline Values"
+   - Search for parameter symbols AND their descriptions
+   - Check around equations where parameters first appear
+   - Look for phrases like "we set", "calibrated to", "following [citation]"
+   - Do NOT calculate any parameters, extract only stated values
+
+3. **Common Parameter Locations**:
+   - After model description, before results
+   - In subsection on calibration/estimation
+   - In tables with "Parameter", "Value", "Description" columns
+   - In footnotes explaining choices
+
+4. **Zero Value Protocol**:
+   - Zero IS a valid parameter value - extract as "0" or "0.0"
+   - Common zero parameters: money in utility (cashless), adjustment costs (flexible)
+   - Never skip zero values
+
+**Task 5.27 - Households' discount factor**
+- **Column**: `Households_discount_factor`
+- **Common symbols**: β, beta, δ
+- **Common values**: 0.96-0.995 (quarterly), 0.98-0.999 (monthly)
+- **Search enhanced**: "discount factor", "beta", "β", "time preference"
+
+**Task 5.28 - Consumption curvature parameter**
+- **Column**: `Consumption_curvature_parameter`
+- **Common symbols**: σ, gamma, CRRA, IES (as 1/σ)
+- **Common values**: 1-4 (risk aversion), 0.25-1 (as IES)
+- **Search enhanced**: "risk aversion", "CRRA", "intertemporal elasticity", "curvature"
+
+**Task 5.29 - Disutility of labor**
+- **Column**: `Disutility_of_labor`
+- **Common symbols**: χ, psi, ψ, xi
+- **Context**: Weight on labor/leisure in utility function
+- **Search enhanced**: "labor disutility", "labor weight", "preference for leisure"
+
+**Task 5.30 - Inverse of labor supply elasticity**
+- **Column**: `Inverse_of_labor_supply_elasticity`
+- **Common symbols**: φ, phi, ν, nu, η
+- **Common values**: 0.5-5 (Frisch elasticity is 1/φ)
+- **Search enhanced**: "Frisch elasticity", "labor supply elasticity", "labor curvature"
+
+**Task 5.31 - Money curvature parameter**
+- **Column**: `Money_curvature_parameter`
+- **Common symbols**: ξ, xi, ζ, zeta, b
+- **Context**: In money-in-utility or cash-in-advance models
+- **Note**: Often 0 in cashless New Keynesian models
+- **Search enhanced**: "money demand elasticity", "money in utility"
+
+**Task 5.32 - Loan-to-value ratio**
+- **Column**: `Loan_to_value_ratio`
+- **Common symbols**: LTV, m, θ
+- **Common values**: 0.7-0.9
+- **Context**: In models with collateral constraints
+- **Search enhanced**: "LTV", "collateral requirement", "borrowing constraint"
+
+**Task 5.33 - Labor share of output**
+- **Column**: `Labor_share_of_output`
+- **Common symbols**: 1-α, labor share, wage share
+- **Common values**: 0.6-0.7
+- **Search enhanced**: "labor share", "capital share" (then 1-capital share), "Cobb-Douglas"
+
+**Task 5.34 - Depositors' discount factor**
+- **Column**: `Depositors_discount_factor`
+- **Common symbols**: β_d, beta_d, β_s (savers)
+- **Context**: In models with heterogeneous agents
+- **Search enhanced**: "patient households", "savers", "depositors"
+
+**Task 5.35 - Price adjustment cost**
+- **Column**: `Price_adjustment_cost`
+- **Common symbols**: κ, kappa, φ_p, Rotemberg parameter
+- **Context**: Rotemberg (1982) quadratic adjustment costs
+- **Note**: Different from Calvo parameter
+- **Search enhanced**: "price adjustment cost", "Rotemberg", "menu cost"
+
+**Task 5.36 - Elasticity of substitution between goods**
+- **Column**: `Elasticity_of_substitution_between_goods`
+- **Common symbols**: ε, epsilon, η, theta
+- **Common values**: 6-11 (implies markup of 20%-10%)
+- **Search enhanced**: "elasticity of substitution", "markup", "market power"
+
+**Task 5.37 - AR(1) coefficient of TFP**
+- **Column**: `AR1_coefficient_of_TFP`
+- **Common symbols**: ρ_a, rho_a, ρ_z, persistence
+- **Common values**: 0.9-0.99
+- **Search enhanced**: "TFP persistence", "technology shock", "AR(1)", "autocorrelation"
+
+**Task 5.38 - Standard deviation to TFP shock**
+- **Column**: `Std_dev_to_TFP_shock`
+- **Common symbols**: σ_a, sigma_a, σ_z, std(a)
+- **Common values**: 0.006-0.02
+- **Search enhanced**: "TFP volatility", "technology shock", "standard deviation"
+
+**Task 5.20 - Zero Lower Bound** (Note: Also appears in Document 2)
+- **Column**: `Zero_Lower_Bound`
+- **Task**: Check zero lower bound environment for each result
+- **Process**: Determine if zero lower bound constraint is considered
+- **Search terms**: "zero lower bound", "ZLB", "effective lower bound", "ELB"
+- **Output**: 1 (Yes) or 0 (No)
+
+## EXTRACTION VERIFICATION PROTOCOL
+
+After extracting from EACH source:
+1. **Completeness Double-Check**: 
+   - Did I extract from ALL tables listed in Task 5.21?
+   - Does my row count match the total inflation results count?
+2. **Sign Triple-Check**: 
+   - Re-verify all negative values have minus signs
+   - Cross-verify between similar tables
+3. **Consistency Check**: 
+   - When same scenario appears in multiple tables, are values consistent?
+   - If not, extract both and note the difference
+
+## CRITICAL REMINDERS
+
+1. **COMPLETE EXTRACTION IS MANDATORY** - extract from ALL tables, not just first one
+2. **SIGN PRESERVATION IS CRITICAL** - Double-check every negative value
+3. **CROSS-VERIFY SIMILAR TABLES** - They may have subtle differences
+4. **PARAMETER SEARCH MUST BE EXHAUSTIVE** - check everywhere
+5. **ZEROS ARE VALID** - never skip them
+6. **When similar tables appear** - extract from BOTH and verify consistency
+7. **Create one row per inflation result** - multiple rows from same paper
+
+## VALIDATION CHECKLIST
+
+### Pre-Extraction:
+- [ ] Located paper's notation section
+- [ ] Identified model type (affects expected parameter ranges)
+- [ ] Found calibration/parameter section
+- [ ] Mapped ALL tables with results (not just first one found)
+
+### During Extraction:
+- [ ] Extracted from ALL tables, not just one
+- [ ] Compared similar tables for differences
+- [ ] Verified signs match source exactly
+- [ ] Searched exhaustively for parameters
+
+### Post-Extraction:
+- [ ] Row count matches total inflation results
+- [ ] All similar scenarios have consistent signs across tables
+- [ ] No tables were skipped
+- [ ] Each inflation result has its own row
+
+## OUTPUT EXAMPLE (Multiple rows for multiple results)
+```
+Idstudy	IdEstimate	Author	Author_Affiliation	DOI	Journal_Name	Num_Citations	Year	Base_Model_Type	Augmented_base_model	Augmentation_Description	Ramsey_Rule	HH_Included	Firms_Included	Banks_Included	Government_Included	HH_Maximization_Type	HH_Maximized_Vars	Producer_Type	Producer_Assumption	Other_Agent_Included	Other_Agent_Assumptions	Empirical_Research	Country	Flexible_Price_Assumption	Exogenous_Inflation	Households_discount_factor	Consumption_curvature_parameter	Disutility_of_labor	Inverse_of_labor_supply_elasticity	Money_curvature_parameter	Loan_to_value_ratio	Labor_share_of_output	Depositors_discount_factor	Price_adjustment_cost	Elasticity_of_substitution_between_goods	AR1_coefficient_of_TFP	Std_dev_to_TFP_shock	Zero_Lower_Bound	Results_Table	Results_Inflation	Results_Inflation_Assumption	Preferred_Estimate	Reason_for_Preferred	Std_Dev_Inflation	Interest_Rate	Impact_Factor
+1	1	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	0.99	2	0.5	1	0	NA	0.67	NA	NA	6	0.95	0.007	0	Table 1	-0.02	Baseline calibration	1	Main specification with standard parameters	NA	0.02	NA
+1	2	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	0.99	2	0.5	1	0	NA	0.67	NA	NA	6	0.95	0.007	1	Table 1	0.00	With ZLB constraint	0	NA	NA	0.04	NA
+1	3	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	0.99	1	0.5	1	0	NA	0.67	NA	NA	6	0.95	0.007	0	Table 2	-0.03	Low risk aversion	0	NA	NA	0.01	NA
+```
