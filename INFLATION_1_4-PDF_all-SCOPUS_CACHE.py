@@ -165,16 +165,21 @@ class HybridPDFAnalyzer:
                 response = self.client.messages.create(**params)
             
             # Loguj cache statistiky
-            usage = response.usage
-            if hasattr(usage, 'cache_creation_input_tokens') and usage.cache_creation_input_tokens:
-                self.cache_stats['cache_writes'] += usage.cache_creation_input_tokens
-                logger.info(f"📝 Cache write: {usage.cache_creation_input_tokens} tokenů")
-            
-            if hasattr(usage, 'cache_read_input_tokens') and usage.cache_read_input_tokens:
-                self.cache_stats['cache_hits'] += usage.cache_read_input_tokens
-                saved = usage.cache_read_input_tokens * 0.9  # 90% úspora
-                self.cache_stats['total_saved_tokens'] += saved
-                logger.info(f"💰 Cache hit: {usage.cache_read_input_tokens} tokenů (ušetřeno ~{saved:.0f})")
+            if use_thinking:
+                # Pro streamované odpovědi nemáme usage info
+                logger.info(f"📝 Extended Thinking dokončeno (streaming)")
+            else:
+                # Pro normální odpovědi máme usage info
+                usage = response.usage
+                if hasattr(usage, 'cache_creation_input_tokens') and usage.cache_creation_input_tokens:
+                    self.cache_stats['cache_writes'] += usage.cache_creation_input_tokens
+                    logger.info(f"📝 Cache write: {usage.cache_creation_input_tokens} tokenů")
+                
+                if hasattr(usage, 'cache_read_input_tokens') and usage.cache_read_input_tokens:
+                    self.cache_stats['cache_hits'] += usage.cache_read_input_tokens
+                    saved = usage.cache_read_input_tokens * 0.9  # 90% úspora
+                    self.cache_stats['total_saved_tokens'] += saved
+                    logger.info(f"💰 Cache hit: {usage.cache_read_input_tokens} tokenů (ušetřeno ~{saved:.0f})")
             
             # Zpracuj odpověď
             if use_thinking:
