@@ -307,9 +307,20 @@ Extract data from academic PDF articles for meta-analysis dataset creation. Proc
 - **Column**: `Augmentation_Description`
 
 **5.4 (VARIANT)**
-- **Task**: Check for Ramsey rule consideration
-- **Search terms**: "Ramsey", "optimal policy", "welfare maximization"
-- **Output**: 1 (Yes) or 0 (No)
+- **Task**: Identify if the model uses a **Ramsey approach** to jointly determine optimal fiscal and monetary policy
+- **Core Question**: Does the model find the optimal inflation rate by treating it as one of several **distortionary taxes** used to fund the government, because **lump-sum taxes are unavailable**?
+- **Look for (Positive Signals)**:
+  - Phrases: "Ramsey taxation", "optimal tax system", "inflation tax", "seigniorage", "public finance approach"
+  - Assumptions: An explicit "government budget constraint" must be financed by "distortionary taxes"; the model states that "lump-sum taxes" are NOT available
+  - Citations to authors like Phelps, Lucas & Stokey in the context of optimal policy
+  - Discussion of inflation as a revenue source for government
+  - Joint optimization of fiscal and monetary instruments
+- **Rule out if (Negative Signals)**:
+  - The model assumes "lump-sum taxes" are available (this usually points to the "Friedman Rule")
+  - The central bank minimizes an "ad-hoc" or "quadratic loss function" (e.g., stabilizing inflation around a given target and an output gap) that is not derived from a government financing problem
+  - Optimal inflation is determined solely by monetary frictions without fiscal considerations
+  - The paper focuses only on monetary policy without fiscal policy integration
+- **Output**: 1 (Yes - Ramsey approach) or 0 (No - not Ramsey approach)
 - **Column**: `Ramsey_Rule`
 
 **5.5 (VARIANT)**
