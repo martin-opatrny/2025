@@ -343,9 +343,21 @@ Extract data from academic PDF articles for meta-analysis dataset creation. Proc
 - **Column**: `Banks_Included`
 
 **5.8 (VARIANT)**
-- **Task**: Identify government sector in model
-- **Search terms**: "government", "fiscal policy", "public sector"
-- **Output**: 1 (Yes) or 0 (No)
+- **Task**: Identify if government plays ACTIVE ROLE in the model
+- **CRITICAL VERIFICATION**: Government must be an active model component, not just mentioned
+- **Evidence of ACTIVE government role**:
+  - Government budget constraint equation
+  - Government spending (G) in resource constraint
+  - Fiscal policy rules or instruments
+  - Tax rates that affect equilibrium
+  - Government debt dynamics
+  - Transfer payments that enter household budget
+- **NOT sufficient for marking as 1**:
+  - Only mentioning "government" in text
+  - Discussing government in literature review
+  - Government only as policy discussion
+- **Search enhanced**: Look for equations with G_t, τ (tax), T (transfers), B^g (gov bonds)
+- **Output**: 1 (Yes - active role) or 0 (No - not in model)
 - **Column**: `Government_Included`
 
 **5.9 (INVARIANT)**
