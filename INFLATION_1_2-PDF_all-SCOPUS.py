@@ -195,6 +195,7 @@ class PDFAnalyzer:
 ### MANDATORY COMPLIANCE REQUIREMENTS
 - **NEVER leave any cell empty** - use "NA" for missing information
 - **NEVER fabricate data** - only report verifiable information from sources
+- **NEVER calculate any parameters** - extract only stated values
 - **NEVER include a study if there is no value for inflation** - do not use "NA" for inflation result
 - **ALWAYS use exact column names** as specified below
 - **ALWAYS follow the 0/1 coding system** for Yes/No questions (0 = No, 1 = Yes)
