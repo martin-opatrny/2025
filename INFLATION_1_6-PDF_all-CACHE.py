@@ -68,17 +68,15 @@ META_ANALYSIS_COLUMNS = [
 
 # EMBEDDED PROMPTS - Nová struktura
 DOCUMENT_0_PROMPT = """
-DOCUMENT_0_PROMPT = """
 # Document 0: Inflation Results Pre-Scanner
 
 ## PURPOSE
-This document performs a rapid scan to count the total number of inflation results in the paper. This provides an INITIAL ESTIMATE for subsequent documents, but Document 3's detailed extraction takes precedence if counts differ.
+This document performs a rapid scan to count the total number of inflation results in the paper. This count will be used by all subsequent documents to ensure consistent row generation.
 
 ## CRITICAL DIRECTIVE
 - **ONLY count inflation results** - do not extract any other information
 - **Be exhaustive** - scan ALL tables, figures, and text sections
-- **Report one number** - the estimated count of distinct inflation results
-- **This is a MINIMUM count** - Document 3 may find additional results during detailed extraction
+- **Report one number** - the total count of distinct inflation results
 
 ## SCANNING PROTOCOL
 
@@ -104,16 +102,20 @@ Check these locations in order:
 - Ranges (e.g., "-2% to 0%") = count endpoints separately if they represent different cases
 
 ### 4. Output Format
-State clearly: "This paper contains AT LEAST [X] distinct inflation results. Document 3 will perform detailed extraction and may find additional results."
-
-## VALIDATION NOTE
-If Document 3 finds more results during detailed extraction, Document 3's count is authoritative. This pre-scan provides a minimum baseline to help subsequent documents prepare.
+State clearly: "This paper contains [X] distinct inflation results. All subsequent documents should create [X] rows."
 
 ## EXAMPLES
 - Table with 5 rows, each showing optimal inflation under different parameters = 5 results
 - Figure comparing 3 different model specifications = 3 results  
 - Text mentioning "baseline inflation of 2% and robustness check of 0%" = 2 results
 
+## VALIDATION
+After counting, verify by asking:
+- Did I check all tables?
+- Did I check all figures?
+- Did I check the appendices?
+- Did I count each distinct scenario?
+"""
 
 DOCUMENT_1_PROMPT = """
 # Document 1: Metadata & Study Identification Instructions
@@ -435,7 +437,7 @@ Idstudy  IdEstimate  Author	Author_Affiliation	DOI	Journal_Name	Num_Citations	Ye
 """
 
 DOCUMENT_3_PROMPT = """
-# Document 3: Results & Parameters Instructions (MODIFIED)
+# Document 3: Results & Parameters Instructions
 
 ## CRITICAL SYSTEM DIRECTIVES
 
@@ -460,18 +462,16 @@ DOCUMENT_3_PROMPT = """
 - **Number of rows should match the count from Document 0**
 
 ## COMPLETE COLUMN LIST (47 COLUMNS)
-
 Idstudy	IdEstimate	Author	Author_Affiliation	DOI	Journal_Name	Num_Citations	Year	Base_Model_Type	Augmented_base_model	Augmentation_Description	Ramsey_Rule	HH_Included	Firms_Included	Banks_Included	Government_Included	HH_Maximization_Type	HH_Maximized_Vars	Producer_Type	Producer_Assumption	Other_Agent_Included	Other_Agent_Assumptions	Empirical_Research	Country	Flexible_Price_Assumption	Exogenous_Inflation	Households_discount_factor	Consumption_curvature_parameter	Disutility_of_labor	Inverse_of_labor_supply_elasticity	Money_curvature_parameter	Loan_to_value_ratio	Labor_share_of_output	Depositors_discount_factor	Price_adjustment_cost	Elasticity_of_substitution_between_goods	AR1_coefficient_of_TFP	Std_dev_to_TFP_shock	Zero_Lower_Bound	Results_Table	Results_Inflation	Results_Inflation_Assumption	Preferred_Estimate	Reason_for_Preferred	Std_Dev_Inflation	Interest_Rate	Impact_Factor
-
 
 ## DOCUMENT 3 ASSIGNED COLUMNS
 This document extracts the following columns:
-- Idstudy (copy from Document 1 or assign if working independently)
+- Idstudy (copy from Document 1)
 - IdEstimate
 - Flexible_Price_Assumption (MOVED FROM DOCUMENT 2)
 - Exogenous_Inflation (MOVED FROM DOCUMENT 2)
 - Households_discount_factor through Std_dev_to_TFP_shock (all parameters)
-- Zero_Lower_Bound
+- Zero_Lower_Bound (MOVED FROM DOCUMENT 2)
 - Results_Table
 - Results_Inflation
 - Results_Inflation_Assumption
@@ -485,7 +485,6 @@ All other columns must be filled with "NA".
 ## CRITICAL NOTATION GUIDE (READ FIRST)
 
 ### ENHANCED VARIABLE IDENTIFICATION PROTOCOL
-
 **Inflation Variables - Extended Recognition:**
 - **Standard notations**: π, π*, πe, π̄, phi, φ, Π, π^*, π_t, π^opt
 - **Expected value notation**: E[π], E(π), 𝔼[π], E_t[π] - these ARE inflation values
@@ -597,117 +596,73 @@ All other columns must be filled with "NA".
 
 **Task 5.28 - Consumption curvature parameter**
 - **Column**: `Consumption_curvature_parameter`
-- **Common symbols**: σ, gamma, CRRA, IES (as 1/σ)
-- **Common values**: 1-4 (risk aversion), 0.25-1 (as IES)
-- **Search enhanced**: "risk aversion", "CRRA", "intertemporal elasticity", "curvature"
+- **Common symbols**: σ, sigma, γ, gamma
+- **Extract value specific to this result's calibration**
 
 **Task 5.29 - Disutility of labor**
 - **Column**: `Disutility_of_labor`
-- **Common symbols**: χ, psi, ψ, xi
-- **Context**: Weight on labor/leisure in utility function
-- **Search enhanced**: "labor disutility", "labor weight", "preference for leisure"
+- **Common symbols**: χ, chi, ψ, psi
+- **Extract value specific to this result's calibration**
 
 **Task 5.30 - Inverse of labor supply elasticity**
 - **Column**: `Inverse_of_labor_supply_elasticity`
-- **Common symbols**: φ, phi, ν, nu, η
-- **Common values**: 0.5-5 (Frisch elasticity is 1/φ)
-- **Search enhanced**: "Frisch elasticity", "labor supply elasticity", "labor curvature"
+- **Common symbols**: ν, nu, φ, phi
+- **Extract value specific to this result's calibration**
 
 **Task 5.31 - Money curvature parameter**
 - **Column**: `Money_curvature_parameter`
-- **Common symbols**: ξ, xi, ζ, zeta, b
-- **Context**: In money-in-utility or cash-in-advance models
-- **Note**: Often 0 in cashless New Keynesian models
-- **Search enhanced**: "money demand elasticity", "money in utility"
+- **Common symbols**: α, alpha, η, eta
+- **Extract value specific to this result's calibration**
 
-**Task 5.32 - Loan-to-value ratio**
+**Task 5.32 - Loan to value ratio**
 - **Column**: `Loan_to_value_ratio`
-- **Common symbols**: LTV, m, θ
-- **Common values**: 0.7-0.9
-- **Context**: In models with collateral constraints
-- **Search enhanced**: "LTV", "collateral requirement", "borrowing constraint"
+- **Common symbols**: LTV, θ, theta
+- **Extract value specific to this result's calibration**
 
 **Task 5.33 - Labor share of output**
 - **Column**: `Labor_share_of_output`
-- **Common symbols**: 1-α, labor share, wage share
-- **Common values**: 0.6-0.7
-- **Search enhanced**: "labor share", "capital share" (then 1-capital share), "Cobb-Douglas"
+- **Common symbols**: α, alpha (in production function)
+- **Typical range**: 0.6-0.7
+- **Extract value specific to this result's calibration**
 
 **Task 5.34 - Depositors' discount factor**
 - **Column**: `Depositors_discount_factor`
-- **Common symbols**: β_d, beta_d, β_s (savers)
-- **Context**: In models with heterogeneous agents
-- **Search enhanced**: "patient households", "savers", "depositors"
+- **Common symbols**: β_d, beta_d
+- **Extract value specific to this result's calibration**
 
 **Task 5.35 - Price adjustment cost**
 - **Column**: `Price_adjustment_cost`
-- **Common symbols**: κ, kappa, φ_p, Rotemberg parameter
-- **Context**: Rotemberg (1982) quadratic adjustment costs
-- **Note**: Different from Calvo parameter
-- **Search enhanced**: "price adjustment cost", "Rotemberg", "menu cost"
+- **Common symbols**: κ, kappa, ϕ, phi (Calvo parameter)
+- **Extract value specific to this result's calibration**
 
 **Task 5.36 - Elasticity of substitution between goods**
 - **Column**: `Elasticity_of_substitution_between_goods`
-- **Common symbols**: ε, epsilon, η, theta
-- **Common values**: 6-11 (implies markup of 20%-10%)
-- **Search enhanced**: "elasticity of substitution", "markup", "market power"
+- **Common symbols**: ε, epsilon, θ, theta, ρ, rho
+- **Typical range**: 5-11
+- **Extract value specific to this result's calibration**
 
-**Task 5.37 - AR(1) coefficient of TFP**
+**Task 5.37 - AR1 coefficient of TFP**
 - **Column**: `AR1_coefficient_of_TFP`
-- **Common symbols**: ρ_a, rho_a, ρ_z, persistence
-- **Common values**: 0.9-0.99
-- **Search enhanced**: "TFP persistence", "technology shock", "AR(1)", "autocorrelation"
+- **Common symbols**: ρ_A, rho_A, ρ_z, rho_z
+- **Typical range**: 0.8-1.0
+- **Extract value specific to this result's calibration**
 
-**Task 5.38 - Standard deviation to TFP shock**
+**Task 5.38 - Standard deviation of TFP shock**
 - **Column**: `Std_dev_to_TFP_shock`
-- **Common symbols**: σ_a, sigma_a, σ_z, std(a)
-- **Common values**: 0.006-0.02
-- **Search enhanced**: "TFP volatility", "technology shock", "standard deviation"
-
-### OUTPUT FORMAT REQUIREMENTS
-- Generate a table with ALL 47 column headers (complete list below)
-- Fill ONLY the columns specified in this document
-- Mark all other columns as "NA"
-- Each row = one inflation result from the paper
-- Use tab-separated format for easy Excel import
-- Include header row with all column names
-- **FINAL ROW COUNT**: Extract ALL inflation results found. If more results are found than Document 0's estimate, the higher count is correct.
-
-## ROW COUNT RECONCILIATION PROTOCOL
-
-### If Document 3 finds MORE results than Document 0:
-- **This is EXPECTED and CORRECT** - Document 3's detailed extraction is more thorough
-- Continue extracting ALL results found
-- Common reasons:
-  - Results mentioned only in text (easy to miss in quick scan)
-  - Results in footnotes or appendices
-  - Multiple results in complex table structures
-  - Results described verbally without clear numerical presentation
-
-### If Document 3 finds FEWER results than Document 0:
-- **STOP and RE-EXAMINE** - This suggests missed results
-- Re-check all locations mentioned in Document 0
-- Look for:
-  - Overlooked columns in tables
-  - Figures with numerical annotations
-  - Text passages with embedded results
-  - Different model specifications in same table
-
-### Final Rule:
-**The HIGHER count between Document 0 and Document 3 is always correct.** Document 3 should extract every inflation result found, regardless of Document 0's initial estimate.
+- **Common symbols**: σ_A, sigma_A, σ_z, sigma_z
+- **Extract value specific to this result's calibration**
 
 ## EXTRACTION VERIFICATION PROTOCOL
 
 1. **Row Count Verification**: 
-   - If row count > Document 0's estimate → Correct (Document 3 is more thorough)
-   - If row count < Document 0's estimate → Re-examine the paper
-   - Never artificially limit extraction to match Document 0
+   - Confirm total rows match Document 0's count
    
-2. **Completeness Check**:
-   - Did I check every table mentioned in the paper?
-   - Did I check every figure with numbers?
-   - Did I check inline text results?
-   - Did I check appendices?
+2. **Assumption Matching**:
+   - Verify Flexible_Price_Assumption matches the scenario description
+   - Verify Zero_Lower_Bound matches the result context
+   
+3. **Sign Verification**:
+   - Double-check all negative inflation values
 
 ## CRITICAL REMINDERS
 
@@ -716,29 +671,13 @@ All other columns must be filled with "NA".
 3. **PARAMETERS MAY VARY** - Different calibrations for different results
 4. **SIGN PRESERVATION IS CRITICAL** - Verify negative values
 
-## VALIDATION CHECKLIST
-
-### Pre-Extraction:
-- [ ] Confirmed total result count from Document 0
-- [ ] Located all results sources
-- [ ] Identified parameter variations across results
-
-### During Extraction:
-- [ ] Checked model assumptions for EACH result
-- [ ] Extracted parameters specific to EACH result
-- [ ] Preserved exact signs and decimals
-
-### Post-Extraction:
-- [ ] Row count matches Document 0
-- [ ] Each result has its assumptions properly coded
-- [ ] All signs verified
-
 ## OUTPUT EXAMPLE (Multiple rows showing variation)
 
 Idstudy	IdEstimate	Author	Author_Affiliation	DOI	Journal_Name	Num_Citations	Year	Base_Model_Type	Augmented_base_model	Augmentation_Description	Ramsey_Rule	HH_Included	Firms_Included	Banks_Included	Government_Included	HH_Maximization_Type	HH_Maximized_Vars	Producer_Type	Producer_Assumption	Other_Agent_Included	Other_Agent_Assumptions	Empirical_Research	Country	Flexible_Price_Assumption	Exogenous_Inflation	Households_discount_factor	Consumption_curvature_parameter	Disutility_of_labor	Inverse_of_labor_supply_elasticity	Money_curvature_parameter	Loan_to_value_ratio	Labor_share_of_output	Depositors_discount_factor	Price_adjustment_cost	Elasticity_of_substitution_between_goods	AR1_coefficient_of_TFP	Std_dev_to_TFP_shock	Zero_Lower_Bound	Results_Table	Results_Inflation	Results_Inflation_Assumption	Preferred_Estimate	Reason_for_Preferred	Std_Dev_Inflation	Interest_Rate	Impact_Factor
 1	1	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	1	0	0.99	2	0.5	1	0	NA	0.67	NA	NA	6	0.95	0.007	0	Table 1	-0.045	Baseline with flexible prices	1	Main specification	NA	0.02	NA
 1	2	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	0	0	0.99	2	0.5	1	0	NA	0.67	NA	75	6	0.95	0.007	0	Table 1	0.002	Baseline with sticky prices	0	NA	NA	0.04	NA
 1	3	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	NA	0	0	0.99	2	0.5	1	0	NA	0.67	NA	75	6	0.95	0.007	1	Table 2	0.000	Sticky prices with ZLB	0	NA	NA	0.04	NA
+"""
 
 
 @dataclass
@@ -1008,7 +947,10 @@ class OptimizedPDFAnalyzer:
             
             # Validace odpovědi
             result = self._parse_response(response)
-            if self._validate_response(result, doc_type):
+            logger.info(f"📊 Parsed result for {doc_type}: {type(result)} - {result}")
+            if result is None:
+                logger.warning(f"⚠️ Prázdná odpověď od {primary_model}, zkouším fallback")
+            elif self._validate_response(result, doc_type):
                 self.extraction_stats[f"{doc_type}_success"] += 1
                 return result
             else:
@@ -1027,11 +969,14 @@ class OptimizedPDFAnalyzer:
             try:
                 response = self.client.messages.create(**params)
                 self._track_usage(response)
-                return self._parse_response(response)
+                result = self._parse_response(response)
+                if result is None:
+                    return {'error': 'Failed to parse response', 'table_rows': []}
+                return result
             except Exception as e:
                 logger.error(f"❌ Fallback také selhal: {e}")
         
-        return {'error': 'Failed to extract data'}
+        return {'error': 'Failed to extract data', 'table_rows': []}
     
     def _track_usage(self, response):
         """Sleduje použití tokenů z response"""
@@ -1053,6 +998,8 @@ class OptimizedPDFAnalyzer:
     
     def _analyze_document_quality(self, result: Dict, doc_type: str, filename: str) -> Dict:
         """Analyzuje kvalitu extrakce pro daný dokument"""
+        
+        logger.info(f"🔍 Analyzing document quality for {doc_type}: {type(result)} - {result}")
         
         # Definice kritických polí pro každý typ dokumentu
         critical_fields = {
@@ -1120,47 +1067,6 @@ class OptimizedPDFAnalyzer:
             quality_info['error'] = True
             quality_info['total_fields'] = len(expected_fields.get(doc_type, {}))
             return quality_info
-    
-    def _validate_response(self, result: Dict, doc_type: str) -> bool:
-        """Validuje odpověď podle typu dokumentu"""
-        if result is None or 'error' in result:
-            return False
-            
-        if doc_type == "pre_scan":
-            # Pre-scan musí obsahovat číslo
-            if 'count' not in result:
-                return False
-        elif 'table_rows' not in result or not result['table_rows']:
-            return False
-        
-        # Specifická validace podle typu
-        if doc_type == "metadata":
-            # Musí obsahovat alespoň autora a rok
-            if len(result['table_rows']) == 0:
-                return False
-            row = result['table_rows'][0]
-            if len(row) < 8:
-                return False
-            if row[2] == 'NA' or row[7] == 'NA':  # Author, Year
-                return False
-                
-        elif doc_type == "structure":
-            # Musí obsahovat model info
-            if len(result['table_rows']) == 0:
-                return False
-            row = result['table_rows'][0]
-            if len(row) < 26:
-                return False
-                
-        elif doc_type == "results":
-            # Musí obsahovat inflační výsledky
-            for row in result['table_rows']:
-                if len(row) < 46:
-                    return False
-                if row[40] == 'NA':  # Results_Inflation
-                    return False
-        
-        return True
         
         # Analyzujeme první řádek (pro metadata a structure) nebo všechny řádky (pro results)
         rows_to_analyze = result['table_rows']
@@ -1215,6 +1121,47 @@ class OptimizedPDFAnalyzer:
         
         return quality_info
     
+    def _validate_response(self, result: Dict, doc_type: str) -> bool:
+        """Validuje odpověď podle typu dokumentu"""
+        if result is None or 'error' in result:
+            return False
+            
+        if doc_type == "pre_scan":
+            # Pre-scan musí obsahovat číslo
+            if 'count' not in result:
+                return False
+        elif 'table_rows' not in result or not result['table_rows']:
+            return False
+        
+        # Specifická validace podle typu
+        if doc_type == "metadata":
+            # Musí obsahovat alespoň autora a rok
+            if len(result['table_rows']) == 0:
+                return False
+            row = result['table_rows'][0]
+            if len(row) < 8:
+                return False
+            if row[2] == 'NA' or row[7] == 'NA':  # Author, Year
+                return False
+                
+        elif doc_type == "structure":
+            # Musí obsahovat model info
+            if len(result['table_rows']) == 0:
+                return False
+            row = result['table_rows'][0]
+            if len(row) < 26:
+                return False
+                
+        elif doc_type == "results":
+            # Musí obsahovat inflační výsledky
+            for row in result['table_rows']:
+                if len(row) < 46:
+                    return False
+                if row[40] == 'NA':  # Results_Inflation
+                    return False
+        
+        return True
+    
     def _parse_response(self, response) -> Dict[str, Any]:
         """Parsuje odpověď s lepším error handling"""
         try:
@@ -1253,11 +1200,18 @@ class OptimizedPDFAnalyzer:
                             cols = cols[:len(META_ANALYSIS_COLUMNS)]
                         table_rows.append(cols)
                 
-                return {'table_rows': table_rows}
+                if table_rows:
+                    return {'table_rows': table_rows}
+                else:
+                    return {'error': 'No valid table rows found'}
             else:
                 # Zkusíme najít strukturovaná data jinak
                 logger.warning("Nenalezena standardní tabulka, zkouším alternativní parsing")
-                return self._parse_alternative_format(text)
+                result = self._parse_alternative_format(text)
+                if result is None:
+                    logger.error("_parse_alternative_format vrátil None")
+                    return {'error': 'Could not parse response', 'table_rows': []}
+                return result
                 
         except Exception as e:
             logger.error(f"Chyba při parsování: {e}")
@@ -1278,7 +1232,8 @@ class OptimizedPDFAnalyzer:
                         if col in data:
                             row[i] = str(data[col])
                     return {'table_rows': [row]}
-        except:
+        except Exception as e:
+            logger.warning(f"JSON parsing failed: {e}")
             pass
         
         # Zkusíme najít key-value páry
@@ -1300,7 +1255,7 @@ class OptimizedPDFAnalyzer:
                 row[idx] = value
             return {'table_rows': [row]}
         
-        return {'error': 'Could not parse response'}
+        return {'error': 'Could not parse response', 'table_rows': []}
     
     def analyze_pdf_optimized(self, pdf_path: str) -> pd.DataFrame:
         """Optimalizovaná analýza PDF s novou strukturou"""
@@ -1335,11 +1290,16 @@ class OptimizedPDFAnalyzer:
         
         # Debug Document 1
         doc1_quality = self._analyze_document_quality(results1, "metadata", doc_name)
-        logger.info(f"📊 Document 1 kvalita: {doc1_quality['valid_fields']}/{doc1_quality['total_fields']} polí ({doc1_quality['success_rate']:.1f}%)")
-        if doc1_quality['missing_critical']:
-            logger.warning(f"⚠️ Document 1 chybí kritická pole: {', '.join(doc1_quality['missing_critical'])}")
+        logger.info(f"📊 Document 1 kvalita: {doc1_quality}")
+        if doc1_quality and 'valid_fields' in doc1_quality:
+            logger.info(f"📊 Document 1 kvalita: {doc1_quality['valid_fields']}/{doc1_quality['total_fields']} polí ({doc1_quality['success_rate']:.1f}%)")
+            if doc1_quality['missing_critical']:
+                logger.warning(f"⚠️ Document 1 chybí kritická pole: {', '.join(doc1_quality['missing_critical'])}")
+        else:
+            logger.error(f"❌ Document 1 kvalita je None nebo neplatná: {doc1_quality}")
         
-        self.document_stats['doc1_results'].append(doc1_quality)
+        if doc1_quality:
+            self.document_stats['doc1_results'].append(doc1_quality)
         
         # 4. Document 2: Structure - jen STUDIJNÍ úroveň (levný model)
         logger.info("\n📋 Document 2: Structure - Study Level (Sonnet)")
@@ -1349,11 +1309,16 @@ class OptimizedPDFAnalyzer:
         
         # Debug Document 2
         doc2_quality = self._analyze_document_quality(results2, "structure", doc_name)
-        logger.info(f"📊 Document 2 kvalita: {doc2_quality['valid_fields']}/{doc2_quality['total_fields']} polí ({doc2_quality['success_rate']:.1f}%)")
-        if doc2_quality['missing_critical']:
-            logger.warning(f"⚠️ Document 2 chybí kritická pole: {', '.join(doc2_quality['missing_critical'])}")
+        logger.info(f"📊 Document 2 kvalita: {doc2_quality}")
+        if doc2_quality and 'valid_fields' in doc2_quality:
+            logger.info(f"📊 Document 2 kvalita: {doc2_quality['valid_fields']}/{doc2_quality['total_fields']} polí ({doc2_quality['success_rate']:.1f}%)")
+            if doc2_quality['missing_critical']:
+                logger.warning(f"⚠️ Document 2 chybí kritická pole: {', '.join(doc2_quality['missing_critical'])}")
+        else:
+            logger.error(f"❌ Document 2 kvalita je None nebo neplatná: {doc2_quality}")
         
-        self.document_stats['doc2_results'].append(doc2_quality)
+        if doc2_quality:
+            self.document_stats['doc2_results'].append(doc2_quality)
         
         # 5. Document 3: Results s moved variables (Opus)
         logger.info("\n📋 Document 3: Results + Parameters (Opus)")
@@ -1377,9 +1342,13 @@ class OptimizedPDFAnalyzer:
         
         # Debug Document 3
         doc3_quality = self._analyze_document_quality(results3, "results", doc_name)
-        logger.info(f"📊 Document 3 kvalita: {doc3_quality['valid_fields']}/{doc3_quality['total_fields']} polí ({doc3_quality['success_rate']:.1f}%)")
-        if doc3_quality['missing_critical']:
-            logger.warning(f"⚠️ Document 3 chybí kritická pole: {', '.join(doc3_quality['missing_critical'])}")
+        logger.info(f"📊 Document 3 kvalita: {doc3_quality}")
+        if doc3_quality and 'valid_fields' in doc3_quality:
+            logger.info(f"📊 Document 3 kvalita: {doc3_quality['valid_fields']}/{doc3_quality['total_fields']} polí ({doc3_quality['success_rate']:.1f}%)")
+            if doc3_quality['missing_critical']:
+                logger.warning(f"⚠️ Document 3 chybí kritická pole: {', '.join(doc3_quality['missing_critical'])}")
+        else:
+            logger.error(f"❌ Document 3 kvalita je None nebo neplatná: {doc3_quality}")
         
         # Porovnání Document 0 vs Document 3
         if expected_results != actual_results:
@@ -1393,15 +1362,16 @@ class OptimizedPDFAnalyzer:
             logger.info(f"✅ SHODA: Document 0 i Document 3 shodně {actual_results} výsledků")
         
         # Uložíme pro debugging
-        self.document_stats['doc3_actual'].append({
-            'file': doc_name,
-            'count': actual_results,
-            'expected': expected_results,
-            'match': expected_results == actual_results,
-            'quality': doc3_quality
-        })
-        
-        self.document_stats['doc3_results'].append(doc3_quality)
+        if doc3_quality:
+            self.document_stats['doc3_actual'].append({
+                'file': doc_name,
+                'count': actual_results,
+                'expected': expected_results,
+                'match': expected_results == actual_results,
+                'quality': doc3_quality
+            })
+            
+            self.document_stats['doc3_results'].append(doc3_quality)
         
         # Pokud results3 obsahuje error, zkusíme jednodušší přístup
         if 'error' in results3:
